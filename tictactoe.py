@@ -1,23 +1,29 @@
 import tkinter as tk
 from tkinter import messagebox
 
-# (center_x, center_y):slot in grid
-grid_dict = {(75,75):0,
-             (250,75):1,
-             (425,75):2,
-             (75,250):3,
-             (250,250):4,
-             (425,250):5,
-             (75,425):6,
-             (250,425):7,
-             (425,425):8}
-
 x, y = 0, 0
-x1, x2, x3, x4, high = 150, 175, 325, 350, 500
+high = 400
+rect_width = round(high * .05)
+x1 = round((high - (2 * rect_width)) / 3)
+x2 = x1 + rect_width
+x3 = x2 + x1
+x4 = x3 + rect_width
 square_width = 150
 c_1 = x1 / 2
 c_2 = (x3 + x2) / 2
 c_3 = (high + x4) / 2
+offset = c_1 - 10
+
+# (center_x, center_y):slot in grid
+grid_dict = {(c_1,c_1):0,
+             (c_2,c_1):1,
+             (c_3,c_1):2,
+             (c_1,c_2):3,
+             (c_2,c_2):4,
+             (c_3,c_2):5,
+             (c_1,c_3):6,
+             (c_2,c_3):7,
+             (c_3,c_3):8}
 
 def check_slot(x, y):
   grid_ind = grid_dict[(x, y)]
@@ -37,14 +43,14 @@ def handle_click():
     x_c = c_1
   elif x2 < x and x < x3:
     x_c = c_2
-  elif x4 < x and x < 500:
+  elif x4 < x and x < high:
     x_c = c_3
 
   if 0 < y and y < x2:
     y_c = c_1
   elif x2 < y and y < x3:
     y_c = c_2
-  elif x4 < y and y < 500:
+  elif x4 < y and y < high:
     y_c = c_3
   
   return x_c, y_c
@@ -84,12 +90,12 @@ def game():
   count = 0
 
   def draw_x(x_coord, y_coord):
-    canvas.create_line(x_coord-65, y_coord-65, x_coord+65, y_coord+65, fill='white', width = 5)
-    canvas.create_line(x_coord-65, y_coord+65, x_coord+65, y_coord-65, fill='white', width = 5)
+    canvas.create_line(x_coord-offset, y_coord-offset, x_coord+offset, y_coord+offset, fill='white', width = 5)
+    canvas.create_line(x_coord-offset, y_coord+offset, x_coord+offset, y_coord-offset, fill='white', width = 5)
 
   def draw_o(x_coord, y_coord):
-    canvas.create_oval(x_coord-65, y_coord-65, x_coord+65, y_coord+65, fill='white')
-    canvas.create_oval(x_coord-60, y_coord-60, x_coord+60, y_coord+60, fill='black')
+    canvas.create_oval(x_coord-offset, y_coord-offset, x_coord+offset, y_coord+offset, fill='white')
+    canvas.create_oval(x_coord-(offset-5), y_coord-(offset-5), x_coord+(offset-5), y_coord+(offset-5), fill='black')
 
   def mouse_click_coord(eventorigin):
     global x,y,count
@@ -112,15 +118,16 @@ def game():
       root.destroy()
 
   root = tk.Tk()
-  root.geometry('500x500')
+  geo = str(high) + 'x' + str(high)
+  root.geometry(geo)
 
   # draw board
-  canvas = tk.Canvas(root, width=500, height=500)
+  canvas = tk.Canvas(root, width=high, height=high)
   canvas.configure(bg='black')
-  canvas.create_rectangle(x1, 0, x2, 500, fill="white")
-  canvas.create_rectangle(x3, 0, x4, 500, fill="white")
-  canvas.create_rectangle(0, x1, 500, x2, fill="white")
-  canvas.create_rectangle(0, x3, 500, x4, fill="white")
+  canvas.create_rectangle(x1, 0, x2, high, fill="white")
+  canvas.create_rectangle(x3, 0, x4, high, fill="white")
+  canvas.create_rectangle(0, x1, high, x2, fill="white")
+  canvas.create_rectangle(0, x3, high, x4, fill="white")
 
   canvas.pack()
 
@@ -130,8 +137,8 @@ def game():
 
 base = tk.Tk()
 base.geometry('400x400')
-b1 = tk.Button(base, text='New Game', command=game, width=45, height=12)
-b2 = tk.Button(base, text='Quit', command=base.destroy, width=45, height=12)
+b1 = tk.Button(base, text='New Game', command=game, width=57, height=13)
+b2 = tk.Button(base, text='Quit', command=base.destroy, width=57, height=13)
 b1.pack(side=tk.TOP)
 b2.pack(side=tk.BOTTOM)
 base.mainloop()
