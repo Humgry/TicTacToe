@@ -3,28 +3,73 @@ from tkinter import messagebox
 
 x, y = 0, 0
 high = 400
-rect_width = round(high * .05)
-x1 = round((high - (2 * rect_width)) / 3)
-x2 = x1 + rect_width
+x1 = round((high - (round(high*0.02))) / 3)
+x2 = x1 + (round(high*0.01))
 x3 = x2 + x1
-x4 = x3 + rect_width
-square_width = 150
-c_1 = x1 / 2
-c_2 = (x3 + x2) / 2
-c_3 = (high + x4) / 2
-offset = c_1 - 10
+x4 = x3 + (round(high*0.01))
+
+x_tuple = (x1,x2,x3,x4)
 
 # (center_x, center_y):slot in grid
-grid_dict = {(c_1,c_1):0,
-             (c_2,c_1):1,
-             (c_3,c_1):2,
-             (c_1,c_2):3,
-             (c_2,c_2):4,
-             (c_3,c_2):5,
-             (c_1,c_3):6,
-             (c_2,c_3):7,
-             (c_3,c_3):8}
+grid_dict = {(x1/2,x1/2):0,
+             ((x3+x2)/2,x1/2):1,
+             ((high+x4)/2,x1/2):2,
+             (x1/2,(x3+x2)/2):3,
+             ((x3+x2)/2,(x3+x2)/2):4,
+             ((high+x4)/2,(x3+x2)/2):5,
+             (x1/2,(high+x4)/2):6,
+             ((x3+x2)/2,(high+x4)/2):7,
+             ((high+x4)/2,(high+x4)/2):8}
 
+# set and refresh allow for resize of window in options button menu
+def setvars():
+  root = tk.Tk()
+  l1 = tk.Label(root, text='Window Height (window is square):')
+  e1 = tk.Entry(root, width=30)
+  e1.insert(tk.END, str(high))
+  l1.pack()
+  e1.pack()
+
+  b1 = tk.Button(root, text='Save', command=lambda:refreshvars(e1.get(), root))
+  b1.pack()
+
+def refreshvars(x, root):
+  try:
+    x = int(x)
+  except:
+    x = 400
+  # size less than 200 breaks the board
+  if x < 200:
+    x = 200
+  # doesn't break but too big is annoying
+  elif x > 1000:
+    x = 1000
+  # edit all variables from function, want to do a different way, not sure how
+  global high,x_tuple,grid_dict
+  high = x
+  x1 = round((high - (round(high*0.02))) / 3)
+  x2 = x1 + (round(high*0.01))
+  x3 = x2 + x1
+  x4 = x3 + (round(high*0.01))
+    
+  # using tuple saves me from calling 85 items in global func
+  x_tuple = (x1,x2,x3,x4)
+
+  grid_dict = {(x1/2,x1/2):0,
+               ((x3+x2)/2,x1/2):1,
+               ((high+x4)/2,x1/2):2,
+               (x1/2,(x3+x2)/2):3,
+               ((x3+x2)/2,(x3+x2)/2):4,
+               ((high+x4)/2,(x3+x2)/2):5,
+               (x1/2,(high+x4)/2):6,
+               ((x3+x2)/2,(high+x4)/2):7,
+               ((high+x4)/2,(high+x4)/2):8}
+  
+  # Hitting save closes settings window
+  root.destroy()
+
+# makes sure slot clicked unfilled before placing X or O
+# Keeps track of whose play it is
 def check_slot(x, y):
   grid_ind = grid_dict[(x, y)]
   if grid[grid_ind] == '':
@@ -36,25 +81,30 @@ def check_slot(x, y):
   else:
     return 'bad'
 
+# return coords of center of square clicked
 def handle_click():
   x_c = 0
   y_c = 0
+  
+  x1,x2,x3,x4 = x_tuple
+  
   if 0 < x and x < x1:
-    x_c = c_1
+    x_c = x1/2
   elif x2 < x and x < x3:
-    x_c = c_2
+    x_c = (x3+x2)/2
   elif x4 < x and x < high:
-    x_c = c_3
+    x_c = (high+x4)/2
 
   if 0 < y and y < x2:
-    y_c = c_1
+    y_c = x1/2
   elif x2 < y and y < x3:
-    y_c = c_2
+    y_c = (x3+x2)/2
   elif x4 < y and y < high:
-    y_c = c_3
+    y_c = (high+x4)/2
   
   return x_c, y_c
 
+# checks 8 possible endings
 def game_over():
   var = ''
   
@@ -84,18 +134,21 @@ def game_over():
   else:
     return '', False
 
+# bulk of game
 def game():
   global grid, count
   grid = [''] * 9
   count = 0
 
+  x1,x2,x3,x4 = x_tuple
+
   def draw_x(x_coord, y_coord):
-    canvas.create_line(x_coord-offset, y_coord-offset, x_coord+offset, y_coord+offset, fill='white', width = 5)
-    canvas.create_line(x_coord-offset, y_coord+offset, x_coord+offset, y_coord-offset, fill='white', width = 5)
+    canvas.create_line(x_coord-((x1/2)-10), y_coord-((x1/2)-10), x_coord+((x1/2)-10), y_coord+((x1/2)-10), fill='white', width = 5)
+    canvas.create_line(x_coord-((x1/2)-10), y_coord+((x1/2)-10), x_coord+((x1/2)-10), y_coord-((x1/2)-10), fill='white', width = 5)
 
   def draw_o(x_coord, y_coord):
-    canvas.create_oval(x_coord-offset, y_coord-offset, x_coord+offset, y_coord+offset, fill='white')
-    canvas.create_oval(x_coord-(offset-5), y_coord-(offset-5), x_coord+(offset-5), y_coord+(offset-5), fill='black')
+    canvas.create_oval(x_coord-((x1/2)-10), y_coord-((x1/2)-10), x_coord+((x1/2)-10), y_coord+((x1/2)-10), fill='white')
+    canvas.create_oval(x_coord-(((x1/2)-10)-5), y_coord-(((x1/2)-10)-5), x_coord+(((x1/2)-10)-5), y_coord+(((x1/2)-10)-5), fill='black')
 
   def mouse_click_coord(eventorigin):
     global x,y,count
@@ -137,8 +190,10 @@ def game():
 
 base = tk.Tk()
 base.geometry('400x400')
-b1 = tk.Button(base, text='New Game', command=game, width=57, height=13)
-b2 = tk.Button(base, text='Quit', command=base.destroy, width=57, height=13)
-b1.pack(side=tk.TOP)
-b2.pack(side=tk.BOTTOM)
+b1 = tk.Button(base, text='New Game', command=game, width=15, height=5)
+b2 = tk.Button(base, text='Options', command=setvars, width=15, height=5)
+b3 = tk.Button(base, text='Quit', command=base.destroy, width=15, height=5)
+b1.pack()
+b2.pack()
+b3.pack()
 base.mainloop()
